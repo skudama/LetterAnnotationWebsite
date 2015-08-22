@@ -7,125 +7,168 @@
     <title>Clinical letters</title>
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
     <!--[if lt IE 9]>
-      <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="//oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="//oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
   </head>
   <body>
     <div class="container">
-        <h1>Clinical letters</h1>
-        <hr />
-        <div class="row">
-            <div class="col-md-12">
-                 <div class="panel panel-default">
-                    <div class="panel-body">
-                        <form method="post" enctype="multipart/form-data">
-                          <div class="form-group">
-                            <label for="letter">Select letter</label>
-                            <input type="file" id="letter" name="letter">
-                          </div>
-                          <button type="submit" class="btn btn-success">Process</button>
-                        </form>
-
-                        <br />
-
-                        {% if error %}
-                            <div class="alert alert-danger" role="alert">
-                                <strong>Oh no!</strong>
-                                {{ error }}
-                            </div>
-                        {% endif %}
-                    </div>
+      <h1>Clinical letters</h1>
+      <hr />
+      <div class="row">
+        <div class="col-md-12">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <form method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                  <label for="letter">Select letter</label>
+                  <input type="file" id="letter" name="letter">
                 </div>
-
-               {% if matches %}
-                <div class="row">
-                <div class="col-md-8">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                            <div id="tabContent" class="tab-content">
-                                <div role="tabpanel" class="tab-pane fade in active" id="highlighted" aria-labelledBy="highlighted-tab">
-                                    <h3>Color legend</h3>
-                                    <hr />
-                                    <ul style="list-style-type: none;padding: 0;">
-                                        {% for name, color in legend.iteritems() %}
-                                            <li style="background-color:{{ color }};padding:5px;">{{ name }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                    <pre>{{ format_result(data, matches)|safe }}</pre>
-                                    {% set index = 0 %}
-                                    {% for match_collection in matches %}
-                                        <div class="modal fade" id="modal-{{ index }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                        <h4 class="modal-title">{{ match_collection[1][0][2] }}</h4>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        {% set collection = match_collection[1] %}
-                                                        <div class="well well-sm">
-                                                            <ul>
-                                                                {% for elem in collection %}
-                                                                    <li>
-                                                                        <span style="background-color: {{ elem[3] }}">
-                                                                            {{ elem[2] }}
-                                                                        </span>:
-                                                                        {% if elem[4] %}
-                                                                            source <strong>{{ elem[4] }}</strong>,
-                                                                        {% endif %}
-                                                                        {% if elem[5] %}
-                                                                            type <strong>{{ elem[5] }}</strong>,
-                                                                        {% endif %}
-                                                                        {% if elem[6] %}
-                                                                            score <strong>{{ elem[6] }}</strong>,
-                                                                        {% endif %}
-                                                                        {% if elem[7] %}
-                                                                            CUI <strong>{{ elem[7] }}</strong>
-                                                                        {% endif %}
-                                                                    </li>
-                                                                {% endfor %}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% set index = index + 1 %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                    </div>
-                </div>
-                </div>
-                <div class="col-md-4">
-                                    <h3>Patients</h3>
-                                    <hr />
-                                    <ul>
-                                        {% for name in patients %}
-                                            <li>{{ name }}</li>
-                                            <ul>
-                                                {% for s in patients[name] %}
-                                                    
-                                                    <li>{{ s[1] }} | {{ s[2] }} | {{ s[3] }} | {{ s[4] }}</li>
-
-                                                {% endfor %} 
-                                            </ul>
-                                        {% endfor %}
-                                        </table>
-                                    </ul>
-                </div>
-                </div>
-                {% endif %}
+                <button type="submit" class="btn btn-success">Process</button>
+              </form>
+              <br />
+              {% if error %}
+              <div class="alert alert-danger" role="alert">
+                <strong>Oh no!</strong>
+                {{ error }}
+              </div>
+              {% endif %}
             </div>
           </div>
+          {% if matches %}
+          <div class="row">
+            <div class="col-md-8">
+              <div class="panel panel-default">
+                <div class="panel-body">
+                  <button type="button" class="btn btn-default" id="download-base">
+                  <span class="glyphicon glyphicon-download" aria-hidden="true"></span> Download base HPO
+                  </button>
+                  <button type="button" class="btn btn-default" id="download-all">
+                  <span class="glyphicon glyphicon-download" aria-hidden="true"></span> Dowload all HPO
+                  </button>
+                  <div id="tabContent" class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade in active" id="highlighted" aria-labelledBy="highlighted-tab">
+                      <h3>Color legend</h3>
+                      <hr />
+                      <ul id="groups">
+                        {% for i, data in legend.iteritems() %}
+                        <li style="background-color:{{ data.color }};padding:5px;">
+                          <input type="checkbox" data-id="{{ i }}">
+                          {{ data.name }}
+                        </li>
+                        {% endfor %}
+                      </ul>
+                      <h4>HPO Information Content Score: {{ number_hpo_items }} / {{ words }} = <strong>{{ ics }} %</strong></h4>
+                      <pre>{{ format_result(data, matches)|safe }}</pre>
+                      {% set index = 0 %}
+                      {% for match_collection in matches %}
+                      <div class="modal fade" id="modal-{{ index }}" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                              </button>
+                              <h4 class="modal-title">{{ match_collection[1][0][2] }}</h4>
+                            </div>
+                            <div class="modal-body">
+                              {% set collection = match_collection[1] %}
+                              <div class="well well-sm">
+                                <ul>
+                                  {% for elem in collection %}
+                                  <li>
+                                    <span style="background-color: {{ elem[3] }}">
+                                    {{ elem[2] }}
+                                    </span>:
+                                    {% if elem[4] %}
+                                    source <strong>{{ elem[4] }}</strong>,
+                                    {% endif %}
+                                    {% if elem[5] %}
+                                    type <strong>{{ elem[5] }}</strong>,
+                                    {% endif %}
+                                    {% if elem[6] %}
+                                    score <strong>{{ elem[6] }}</strong>,
+                                    {% endif %}
+                                    {% if elem[7] %}
+                                    CUI <strong>{{ elem[7] }}</strong>
+                                    {% endif %}
+                                  </li>
+                                  {% endfor %}
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {% set index = index + 1 %}
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <h3>Patients</h3>
+              <hr />
+              <ul>
+                {% for name in patients %}
+                <li>{{ name }}</li>
+                <ul>
+                  {% for s in patients[name] %}
+                  <li>{{ s[1] }} | {{ s[2] }} | {{ s[3] }} | {{ s[4] }}</li>
+                  {% endfor %}
+                </ul>
+                {% endfor %}
+                </table>
+              </ul>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
     </div>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <style>
-       #highlighted pre a { color: #333; }
+      #highlighted pre a { color: #333; }
+      #groups { list-style-type: none; padding: 0; }
     </style>
+    {% if matches %}
+    <script>
+      var defaultId = {{ default_id }};
+      $(function() {
+          $('input[data-id=' + defaultId + ']').attr('checked', true).trigger('change');
+
+          $('#groups li input').change(function() {
+              var selected = $(this).prop('checked');
+              var id = $(this).data('id');
+
+              var selector = $('span[data-main="' + id + '"]');
+              if (selected) {
+                  selector.attr('style', selector.attr('data-style'));
+                  selector.removeAttr('data-style');
+              } else  {
+                  selector.attr('data-style', selector.attr('style'));
+                  selector.removeAttr('style');
+              }
+          });
+
+          $('#download-all').click(function() {
+              $('#matches-type').val('all');
+              $('#download-hpo-info').submit();
+          });
+
+          $('#download-base').click(function() {
+              $('#matches-type').val('base');
+              $('#download-hpo-info').submit();
+          });
+
+      });
+    </script>
+    <form id="download-hpo-info" method="post" action="{{ url_for('download') }}">
+      <input type="hidden" name="matches" value='{{ matches_hpo_json|safe }}'>
+      <input type="hidden" name="type" id="matches-type">
+    </form>
+    {% endif %}
   </body>
 </html>
