@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+def get_annotator_url():
+    url = u'http://monster.dlsi.uji.es:8081/query/hpo/q='
+    url = u'http://localhost:8081/query/hpo/q='
+
+    return url
 
 def get_legends():
     legends = {
@@ -9,8 +14,8 @@ def get_legends():
         3: {'name': 'HPO', 'color': '#BD7AFF'},
         4: {'name': 'Shifters', 'color': '#A9F5A9'},
         5: {'name': 'Modifiers', 'color': '#F4FA58'},
-        6: {'name': 'Genes/Anatomy', 'color': '#DF7401'},
-        }
+        6: {'name': 'Genes/Anatomy', 'color': '#FF9900'}
+    }
 
     return legends
 
@@ -22,8 +27,8 @@ def get_id_by_color(color):
         '#BD7AFF': 3,
         '#A9F5A9': 4,
         '#F4FA58': 5,
-        '#DF7401': 6,
-        }
+        '#FF9900': 6,
+    }
 
     return legends[color]
 

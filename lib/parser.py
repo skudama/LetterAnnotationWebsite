@@ -6,6 +6,7 @@ import urllib2
 import urllib
 import requests
 from operator import itemgetter
+from helper import get_annotator_url
 
 # from collections import OrderedDict
 
@@ -323,15 +324,9 @@ def choose_color_code(src, grp):
         color = '#A9F5A9'
         code = 3
     elif src == u'umls2012ab_family':
-
-                                   # familia
-
         color = '#81BEF7'
         code = 1
     elif src == u'umls2012ab_modifiers':
-
-                                      # or ty == u"T080" or ty == u"T081" or ty == u"T169": # modificadores
-
         color = '#F4FA58'
         code = 4
     elif src == u'hpo':
@@ -344,9 +339,6 @@ def choose_color_code(src, grp):
         code = 2
     elif grp in ['GENE', 'CELL', 'ANAT', 'PHYS', 'PROC'] or src \
         in [u'umls2012ab_gene_loci', 'umls2012ab_gene_names']:
-
-                                                                                                                 # GENE
-
         color = '#FF9900'
         code = 5
     return (color, code)
@@ -392,8 +384,7 @@ def align_offsets(Lann, texto):
 
 
 def extract_all(texto):
-
-    url = u'http://monster.dlsi.uji.es:8081/query/hpo/q='
+    url = get_annotator_url()
     url_completa = url + texto
     response = ""
     try:

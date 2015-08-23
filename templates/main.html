@@ -137,7 +137,10 @@
     <script>
       var defaultId = {{ default_id }};
       $(function() {
-          $('input[data-id=' + defaultId + ']').attr('checked', true).trigger('change');
+          $('#groups input[data-id=' + defaultId + ']').attr('checked', true);
+          var selector = $('span[data-main="' + defaultId + '"]');
+          selector.attr('style', selector.attr('data-style'));
+          selector.removeAttr('data-style');
 
           $('#groups li input').change(function() {
               var selected = $(this).prop('checked');
@@ -165,7 +168,7 @@
 
       });
     </script>
-    <form id="download-hpo-info" method="post" action="{{ url_for('download') }}">
+    <form id="download-hpo-info" method="post" action="{{ url_for('download') }}" accept-charset="utf-8">
       <input type="hidden" name="matches" value='{{ matches_hpo_json|safe }}'>
       <input type="hidden" name="type" id="matches-type">
     </form>

@@ -9,7 +9,6 @@ app = Flask(__name__)
 
 ALLOWED_EXTENSIONS = set(['txt'])
 
-
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] \
         in ALLOWED_EXTENSIONS
@@ -31,7 +30,6 @@ def main():
 
     (matches, patients) = extract_all(content)
     hpo_elements = get_hpo_elements(matches)
-    print hpo_elements
     number_hpo_items = len(hpo_elements)
     words = len(content.split())
 
@@ -42,29 +40,30 @@ def main():
         legend=get_legends(),
         patients=patients,
         default_id=3,
-        matches_hpo_json=json.dumps(hpo_elements),
+        matches_hpo_json=json.dumps(hpo_elements).decode('unicode_escape'),
         number_hpo_items=number_hpo_items,
         words=words,
         ics=float(number_hpo_items) / float(words) * 100,
-        )
+    )
 
 
 @app.route('/download', methods=['POST'])
 def download():
     file_type = request.form['type']
+
     matches = json.loads(request.form['matches'])
 
     if file_type == 'base':
-        result = 'name\n'
+        result = u'name|cui\n'
     else:
-        result = 'name|source|type|score|cui\n'
+        result = u'name|type|score|cui\n'
 
     for match in matches:
         if file_type == 'base':
-            result += str(match[0]) + '\n'
+            result += match[0] + '|'
+            result += str(match[4]) + '\n'
         else:
-            result += str(match[0]) + '|'
-            result += str(match[1]) + '|'
+            result += match[0] + '|'
             result += str(match[2]) + '|'
             result += str(match[3]) + '|'
             result += str(match[4]) + '\n'
