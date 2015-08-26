@@ -112,15 +112,22 @@
               <hr />
               <ul>
                 {% for name in patients %}
-                <li>{{ name }}</li>
-                <ul>
+                <li class="parent">{{ name }}</li>
+                <ul class="patients-data">
                   {% for s in patients[name] %}
-                  <li>{{ s[1] }} | {{ s[2] }} | {{ s[3] }} | {{ s[4] }}</li>
+                  <li>
+                    <input type="checkbox" checked="checked">
+                    {{ s[1] }} | {{ s[2] }} | {{ s[3] }} | {{ s[4] }}
+                  </li>
                   {% endfor %}
                 </ul>
                 {% endfor %}
                 </table>
               </ul>
+              <button type="button" class="btn btn-default" id="download-patients">
+              <span class="glyphicon glyphicon-download" aria-hidden="true"></span> Download data
+              </button>
+              <hr>
             </div>
           </div>
           {% endif %}
@@ -166,11 +173,40 @@
               $('#download-hpo-info').submit();
           });
 
+          $('#download-patients').click(function() {
+              var data = {};
+
+              $('li.parent').each(function() {
+                  var text = $(this).text();
+                  var children = $(this).next('ul').find('li');
+                  data[text] = [];
+
+                  $.each(children, function(index, value) {
+                    var checked = $(value).children().is(':checked');
+
+                    if (checked) {
+                      var value = $(value)
+                        .text()
+                        .replace(' ', '')
+                        .replace(/\t/g, '')
+                        .replace(/\n/g, '');
+
+                      data[text].push($.trim(value));
+                    }
+                  });
+              });
+
+              $('#data').val(JSON.stringify(data));
+              $('#download-data').submit();
+          });
       });
     </script>
     <form id="download-hpo-info" method="post" action="{{ url_for('download') }}" accept-charset="utf-8">
       <input type="hidden" name="matches" value='{{ matches_hpo_json|safe }}'>
       <input type="hidden" name="type" id="matches-type">
+    </form>
+    <form id="download-data" method="post" action="{{ url_for('download_data') }}" accept-charset="utf-8">
+      <input type="hidden" name="data" id="data">
     </form>
     {% endif %}
   </body>

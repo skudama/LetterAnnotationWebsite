@@ -75,6 +75,22 @@ def download():
 
     return response
 
+@app.route('/download-data', methods=['POST'])
+def download_data():
+    data_elements = json.loads(request.form['data'])
+
+    result = ''
+    for parent_element, child_list in data_elements.iteritems():
+        result += parent_element + '\n'
+        for value in child_list:
+            result += '\t' + value + '\n'
+
+    response = make_response(result)
+    response.headers['Content-Type'] = 'text/plain'
+    response.headers['Content-Disposition'] = 'attachment; filename=patients.txt'
+
+    return response
+
 
 @app.context_processor
 def string_processor():
