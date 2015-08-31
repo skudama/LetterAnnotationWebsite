@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import re
+
 def get_annotator_url():
     url = u'http://monster.dlsi.uji.es:8081/query/hpo/q='
     url = u'http://localhost:8081/query/hpo/q='
@@ -33,7 +35,7 @@ def get_id_by_color(color):
     return legends[color]
 
 
-def get_hpo_elements(matches):
+def get_hpo_elements(letter, matches):
     hpo_matches = []
     for match_collection in matches:
         collection = match_collection[1]
@@ -45,7 +47,19 @@ def get_hpo_elements(matches):
                 score = elem[6]
                 CUI = elem[7]
 
-                hpo_matches.append([name, source, element_type, score,
-                                   CUI])
+                counter = sum(
+                    1 for _ in re.finditer(r'\b%s\b' % re.escape(name), letter)
+                )
+
+                hpo_matches.append(
+                    [
+                        name,
+                        source,
+                        element_type,
+                        score,
+                        CUI,
+                        counter
+                    ]
+                )
 
     return hpo_matches

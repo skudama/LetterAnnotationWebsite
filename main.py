@@ -29,7 +29,7 @@ def main():
     content = unicode(letter.stream.read(), 'utf-8')
 
     (matches, patients) = extract_all(content)
-    hpo_elements = get_hpo_elements(matches)
+    hpo_elements = get_hpo_elements(content, matches)
     number_hpo_items = len(hpo_elements)
     words = len(content.split())
 
@@ -43,7 +43,7 @@ def main():
         matches_hpo_json=json.dumps(hpo_elements).decode('unicode_escape'),
         number_hpo_items=number_hpo_items,
         words=words,
-        ics=float(number_hpo_items) / float(words) * 100,
+        ics='{0:.3g}'.format(float(number_hpo_items) / float(words) * 100),
     )
 
 
@@ -54,19 +54,20 @@ def download():
     matches = json.loads(request.form['matches'])
 
     if file_type == 'base':
-        result = u'name|cui\n'
+        result = u'cui|label\n'
     else:
-        result = u'name|type|score|cui\n'
+        result = u'cui|label|type|score|frequency\n'
 
     for match in matches:
         if file_type == 'base':
-            result += match[0] + '|'
-            result += str(match[4]) + '\n'
+            result += str(match[4]) + '|'
+            result += match[0] + '\n'
         else:
+            result += str(match[4]) + '|'
             result += match[0] + '|'
             result += str(match[2]) + '|'
             result += str(match[3]) + '|'
-            result += str(match[4]) + '\n'
+            result += str(match[5]) + '\n'
 
     response = make_response(result)
     response.headers['Content-Type'] = 'text/plain'
